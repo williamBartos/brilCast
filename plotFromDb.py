@@ -33,13 +33,18 @@ for row in rows:
     inHums.append(row[3])
     timeStamps.append(row[4])
 
-dates = [datetime.strptime(date, '%Y-%m-%d %H:%M:%S') for date in timeStamps]
+dates = [datetime.strptime(date,'%Y-%m-%d %H:%M:%S') for date in timeStamps]
 
 
 fig = plt.figure()
 plot0 = fig.add_subplot(3,1,1)
 plot1 = fig.add_subplot(3,1,2)
 plot2 = fig.add_subplot(3,1,3)
+
+plot0.set_ylim([0, 100])
+plot1.set_ylim([0, 100])
+plot2.set_ylim([0, 100])
+
 
 
 for ax in fig.axes:
@@ -62,10 +67,12 @@ plot1.set_title('Inside Temperature')
 plt.setp(plot1.get_xticklabels(), visible=False)
 
 
+
 plot2.xaxis.set_major_formatter(xfmt)
 plot2.xaxis_date()
 plot2.plot_date(dates, inHums, 'b-')
 plot2.set_title('Inside Humidity')
+
 
 
 plt.show()

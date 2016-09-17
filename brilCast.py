@@ -2,7 +2,7 @@ import os
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_file
 from io import StringIO
-from plotFromDb import plotFromDb as pdb
+#from plotFromDb import plotFromDb as pdb
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -68,7 +68,7 @@ def add_entry():
     flash('New entry successfully posted')
     return redirect(url_for('show_entries'))
 
- 
+"""
 @app.route('/images')
 def images():
     return render_template("images.html")
@@ -80,6 +80,7 @@ def fig():
     fig.savefig(img)
     img.seek(0)
     return send_file(img, mimetype='image/png')
+    """
 
 if __name__ == "__main__":
     
