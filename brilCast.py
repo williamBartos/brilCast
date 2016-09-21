@@ -1,8 +1,8 @@
 import os
 import sqlite3
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_file
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_file, jsonify
 from io import StringIO
-#from plotFromDb import plotFromDb as pdb
+
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -46,6 +46,24 @@ def get_db():
     if not hasattr(g, 'sqlite_db'):
         g.sqlite_db = connect_db()
     return g.sqlite_db
+
+@app.route('/data')
+def toJson():
+    db = get_db()
+    cur = db.execute('select temp, inTemp, inHum, time from entries order by id desc')
+    entries = cur.fetchall()
+    entrylist =[]
+    for row in entries:
+        entrylist.append({'timeStamps': row[3], 'outTemps' : row[0], 'inTemps' : row[1]})
+    return jsonify(entrylist)
+  
+        
+@app.route('/graph')
+def graph():
+    return render_template("graph.html")        
+
+    
+    
     
 @app.teardown_appcontext
 def close_db(error):
@@ -68,21 +86,9 @@ def add_entry():
     flash('New entry successfully posted')
     return redirect(url_for('show_entries'))
 
-"""
-@app.route('/images')
-def images():
-    return render_template("images.html")
-
-@app.route('/fig')
-def fig():
-    fig =pdb()
-    img = StringIO()
-    fig.savefig(img)
-    img.seek(0)
-    return send_file(img, mimetype='image/png')
-    """
 
 if __name__ == "__main__":
     
-    app.run(host = '0.0.0.0')
-        
+    app.run(host = '0.0.0.0', debug=True, use_reloader=True)
+    connect_db()
+
