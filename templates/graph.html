@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+
 <style>
 
-body { font: 12px Arial;}
+body {
+	font: 12px Arial;
+	}
 
 path { 
-    stroke: steelblue;
+	stroke: steelblue;
     stroke-width: 2;
     fill: none;
-}
-
+	}
 
 .axis path,
 
@@ -18,15 +20,14 @@ path {
     stroke: grey;
     stroke-width: 1;
     shape-rendering: crispEdges;
-}
-
-
+	}
 
 </style>
 
 <body>
 <script src="//d3js.org/d3.v3.min.js"></script>
 	<script>
+	
 		var margin = {top: 20, right: 150, bottom: 30, left: 50},
 		width = 1020 - margin.left - margin.right,
 		height = 500 - margin.top - margin.bottom;
@@ -34,11 +35,13 @@ path {
 		var formatDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
 		
 		var x = d3.time.scale().range([0,width]);
+		
 		var y = d3.scale.linear().range([height,0]);
 		
 		var xAxis = d3.svg.axis()
 			.scale(x)
-			.orient("bottom");
+			.orient("bottom")
+			.tickFormat(d3.time.format("%m-%d %H:%M"));
 			
 		var yAxis = d3.svg.axis()
 			.scale(y)
@@ -58,34 +61,81 @@ path {
 				.attr("height", height + margin.top + margin.bottom)
 			.append("g")
 				.attr("transform", 
-					  "translate (" + margin.left + "," + margin.top + ")")
-			;
+					  "translate (" + margin.left + "," + margin.top + ")");
+			
 		d3.select("#chart")
-.attr("align","center");
+			.attr("align","center");
 			
 		d3.json("/data",function(error, data) {
+		
 			data.forEach(function(d) {
 			d.timeStamps = formatDate(d.timeStamps);
 			d.outTemps = parseFloat(d.outTemps);
 			d.inTemps = parseFloat(d.inTemps);})
-					
+				
 			x.domain(d3.extent(data, function (d) {
 				return d.timeStamps;
-			}));
+				}));
+			
 			y.domain([d3.min(data, function(d) {
 				return Math.min(d.outTemps, d.inTemps)-5}),
 				d3.max(data, function(d) {
 				return Math.max(d.outTemps, d.inTemps)+5})]);
 			   
-			svg.append("path")	
+			var outLinePath = svg.append("path")	
 				.attr("class", "line")
 				.attr("d", outTempLine(data));
 				
-			svg.append("path")	
+			var inLinePath = svg.append("path")	
 				.attr("class", "line")
 				.style("stroke", "red")
 				.attr("d", inTempLine(data));
+			
+			 var totalLengthOut = outLinePath.node().getTotalLength();
+			 
+			 var totalLengthIn = inLinePath.node().getTotalLength();	  
+			 
+			 outLinePath
+			  .attr("stroke-dasharray", totalLengthOut + " " + totalLengthOut)
+			  .attr("stroke-dashoffset", totalLengthOut)
+			  .transition()
+				.duration(2000)
+				.ease("linear")
+				.attr("stroke-dashoffset", 0);
+			   
+			 inLinePath
+			  .attr("stroke-dasharray",totalLengthIn + " " + totalLengthIn)
+			  .attr("stroke-dashoffset", totalLengthIn)
+			  .transition()
+				.duration(2000)
+				.ease("linear")
+				.attr("stroke-dashoffset", 0);
 
+			svg.append("text")
+				.attr("transform", "translate(" + (width+3) + "," + y(data[data.length-1].outTemps) + ")")
+				.attr("dy", ".35em")
+				.attr("text-anchor", "start")
+				.style("fill", "steelblue")
+				.style("opacity", "0")
+				.text("Outside Temperature")
+				.transition()
+					.duration(2500);
+					.style("fill", "steelblue")
+					.style("opacity", "1")
+								
+			svg.append("text")
+				.attr("transform", "translate(" + (width+3) + "," + y(data[data.length-1].inTemps) + ")")
+				.attr("dy", ".35em")
+				.attr("text-anchor", "start")
+				.style("fill", "red")
+				.style("opacity", "0")
+				.text("IndoorTemperature")
+				.transition()
+					.duration(2500);
+					.style("fill", "red")
+					.style("opacity", "1")
+				
+				
 			svg.append("g")		
 				.attr("class", "x axis")
 				.attr("transform", "translate(0," + height + ")")
@@ -94,29 +144,12 @@ path {
 			svg.append("g")		
 				.attr("class", "y axis")
 				.call(yAxis);
-			
-			svg.append("text")
-				.attr("transform", "translate(" + (width+3) + "," + y(data[0].outTemps) + ")")
-				.attr("dy", ".35em")
-				.attr("text-anchor", "start")
-				.style("fill", "steelblue")
-				.text("Outside Temperature");
 				
-			svg.append("text")
-				.attr("transform", "translate(" + (width+3) + "," + y(data[0].inTemps) + ")")
-				.attr("dy", ".35em")
-				.attr("text-anchor", "start")
-				.style("fill", "red")
-				.text("InsideTemperature");
-				
- 
 		});
 		
-		
-
-</script>
+	</script>
 </body>
-
+</html>
 
 		
 		

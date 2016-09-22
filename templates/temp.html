@@ -1,13 +1,16 @@
 {% extends "layout.html" %}
+
 {% block body %}
+
   <ul class=entries>
   {% for entry in entries[:1] %}
     <h2>Outdoor temperature: {{entry.temp}}°F</h2>
-	<h2>Indoor temperature: {{entry.inTemp}}°F</h2>
-	<h2>Indoor humidity: {{entry.inHum}}%</h2>
+	<h2><font color ="red">Indoor temperature: {{entry.inTemp}}°F</font></h2>
+	<h2><font color ="olive">Indoor humidity: {{entry.inHum}}%</font></h2>
 	<h2>Last updated: {{entry.time}}</h2>
   {% else %}
     <li><em>Unbelievable.  No entries here so far</em>
   {% endfor %}
   </ul>
+  
 {% endblock %}
