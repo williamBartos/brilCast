@@ -119,9 +119,9 @@ path {
 				.style("opacity", "0")
 				.text("Outside Temperature")
 				.transition()
-					.duration(2500);
+					.duration(2500)
 					.style("fill", "steelblue")
-					.style("opacity", "1")
+					.style("opacity", "1");
 								
 			svg.append("text")
 				.attr("transform", "translate(" + (width+3) + "," + y(data[data.length-1].inTemps) + ")")
@@ -131,9 +131,9 @@ path {
 				.style("opacity", "0")
 				.text("IndoorTemperature")
 				.transition()
-					.duration(2500);
+					.duration(2500)
 					.style("fill", "red")
-					.style("opacity", "1")
+					.style("opacity", "1");
 				
 				
 			svg.append("g")		
