@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<style>
+
+body {
+	font: 12px Arial;
+	}
+
+path { 
+	stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+	}
+
+.axis path
+
+
+
+</style>
+
+<body>
+<script src="//d3js.org/d3.v3.min.js"></script>
+	<script>
+	
+		var margin = {top: 20, right: 150, bottom: 30, left: 50},
+		width = 1020 - margin.left - margin.right,
+		height = 500 - margin.top - margin.bottom;
+		
+		var formatDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+		
+		var svgCircles = d3.select("body")
+			.append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+				.attr("transform", 
+					  "translate (" + margin.left + "," + margin.top + ")");
+					  
+			
+		d3.json("/data",function(error, data) {
+		
+			data.forEach(function(d) {
+			d.timeStamps = formatDate(d.timeStamps);
+			d.outTemps = parseFloat(d.outTemps);
+			d.inTemps = parseFloat(d.inTemps);})
+				
+			x.domain(d3.extent(data, function (d) {
+				return d.timeStamps;
+				}));
+			

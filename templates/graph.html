@@ -22,12 +22,14 @@ path {
     shape-rendering: crispEdges;
 	}
 
+
+
 </style>
 
-<body>
+<iframeGraph>
+
 <script src="//d3js.org/d3.v3.min.js"></script>
-	<script>
-	
+	<script>	
 		var margin = {top: 20, right: 150, bottom: 30, left: 50},
 		width = 1020 - margin.left - margin.right,
 		height = 500 - margin.top - margin.bottom;
@@ -53,18 +55,15 @@ path {
 		
 		var inTempLine = d3.svg.line()
 			.x(function(d) {return x(d.timeStamps)})
-			.y(function(d) {return y(d.inTemps)});		
-		
-		var svg = d3.select("body")
+			.y(function(d) {return y(d.inTemps)});	
+			
+		var svgGraph = d3.select("iframeGraph")
 			.append("svg")
 				.attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
 			.append("g")
 				.attr("transform", 
 					  "translate (" + margin.left + "," + margin.top + ")");
-			
-		d3.select("#chart")
-			.attr("align","center");
 			
 		d3.json("/data",function(error, data) {
 		
@@ -82,11 +81,11 @@ path {
 				d3.max(data, function(d) {
 				return Math.max(d.outTemps, d.inTemps)+5})]);
 			   
-			var outLinePath = svg.append("path")	
+			var outLinePath = svgGraph.append("path")	
 				.attr("class", "line")
 				.attr("d", outTempLine(data));
 				
-			var inLinePath = svg.append("path")	
+			var inLinePath = svgGraph.append("path")	
 				.attr("class", "line")
 				.style("stroke", "red")
 				.attr("d", inTempLine(data));
@@ -111,7 +110,7 @@ path {
 				.ease("linear")
 				.attr("stroke-dashoffset", 0);
 
-			svg.append("text")
+			svgGraph.append("text")
 				.attr("transform", "translate(" + (width+3) + "," + y(data[data.length-1].outTemps) + ")")
 				.attr("dy", ".35em")
 				.attr("text-anchor", "start")
@@ -123,7 +122,7 @@ path {
 					.style("fill", "steelblue")
 					.style("opacity", "1");
 								
-			svg.append("text")
+			svgGraph.append("text")
 				.attr("transform", "translate(" + (width+3) + "," + y(data[data.length-1].inTemps) + ")")
 				.attr("dy", ".35em")
 				.attr("text-anchor", "start")
@@ -133,22 +132,78 @@ path {
 				.transition()
 					.duration(2500)
 					.style("fill", "red")
-					.style("opacity", "1");
+					.style("opacity", "1");		
 				
-				
-			svg.append("g")		
+			svgGraph.append("g")		
 				.attr("class", "x axis")
 				.attr("transform", "translate(0," + height + ")")
 				.call(xAxis);
 		 
-			svg.append("g")		
+			svgGraph.append("g")		
 				.attr("class", "y axis")
 				.call(yAxis);
 				
 		});
-		
 	</script>
-</body>
+</iframeGraph>
+
+<iframeCircles>
+	
+	<script src="//d3js.org/d3.v3.min.js"></script>
+	<script>
+
+		var circleMargin = {top: 20, right: 150, bottom: 30, left: 50},
+			circleWidth = 200 - circleMargin.left - circleMargin.right,
+			circleHeight = 400 - circleMargin.top - circleMargin.bottom;
+		
+		var formatDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+		
+		var svgCircles = d3.select("iframeCircles")
+			.append("svg")
+				.attr("width", circleWidth + circleMargin.left + circleMargin.right)
+				.attr("height", circleHeight + circleMargin.top + circleMargin.bottom)
+			.append("g")
+				.attr("transform", 
+					  "translate (" + (circleMargin.left)  + "," + (circleMargin.top) + ")");
+
+			d3.json("/data/minmax/yesterday",function(error, data) {
+
+				data.forEach(function(d) {
+				d.timeStamps = formatDate(d.timeStamps);
+				d.outTemps = parseFloat(d.outTemps);})	
+
+				var elem = svgCircles.selectAll("g")
+					.data(data)
+					
+				var elemEnter = elem.enter()
+					.append("g")
+							
+				var circleMin = elemEnter.append("circle")
+				.style("stroke", "gray")
+				.style("fill", "white")
+				.attr("r", 40)
+				.attr("cx", 50)
+				.attr("cy", 120);
+				
+				var circleMax = elemEnter.append("circle")
+				.style("stroke", "gray")
+				.style("fill", "white")
+				.attr("r", 40)
+				.attr("cx", 50)
+				.attr("cy", 240);	
+				
+				elemEnter.append("text")
+					.attr("dx", 37)
+					.attr("dy", 125)
+					.text(data[1].outTemps);
+				
+				elemEnter.append("text")
+					.attr("dx", 37)
+					.attr("dy", 245)
+					.text(data[0].outTemps);
+			});
+	</script>
+</iframeGraph>
 </html>
 
 		
