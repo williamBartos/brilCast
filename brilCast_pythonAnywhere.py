@@ -71,6 +71,7 @@ def postMinMaxYesterday():
          entrylist.append({'timeStamps' : row[1], 'outTemps' : row[0]})
     return jsonify(entrylist)
 
+
 @app.route('/data/minmax/today')
 def postMinMaxToday():
    todayStart = datetime.today().replace(hour = 00, minute = 00, second = 00, microsecond = 00)
@@ -86,12 +87,58 @@ def postMinMaxToday():
    entries = cur.fetchall()
    entrylist =[]
    for row in entries:
+
          entrylist.append({'timeStamps' : row[1], 'outTemps' : row[0]})
    return jsonify(entrylist)
 
+@app.route('/data/week')
+def postMinMaxWeek():
+    
+    entrylist =[]
+    combinedlist = []
+    dayStart = datetime.today().replace(hour = 00, minute = 00, second = 00, microsecond = 00)
+    dayEnd = datetime.today().replace(hour = 11, minute = 59, second = 00, microsecond = 00)
+    i = 0
+    
+    while i <= 7:
+        try: 
+            db = get_db()
+            params = (dayStart, dayEnd, dayStart,dayEnd)
+            sql = ('''
+                select MAX(temp),time from entries where time between ? and ?
+                UNION
+                select MIN(temp),time from entries where time between ? and ?'''
+            )
+            
+            cur = db.execute(sql, params)
+            entries = cur.fetchall()
+            print(dayStart)
+            for row in entries:         
+                if row[1] == None:
+                    pass
+                else:
+                 entrylist.insert(0,[row[1], row[0]])
+                 
+            dayStart = dayStart - timedelta(days = 1)
+            dayEnd = dayEnd - timedelta(days = 1)
+            i+=1
+        except:     
+            break
+        
+    for entry in range(0, len(entrylist),2): 
+        combinedlist.append({'timeStamps' : entrylist[entry][0], 'outTempMax' : entrylist[entry][1], 'outTempMin' : entrylist[entry+1][1]} )
+        
+      
+    return jsonify(combinedlist)
+    
 @app.route('/graph')
 def graph():
     return render_template("graph.html")
+
+@app.route('/bargraph')
+def barGraph():
+    return render_template("bargraph.html")
+    
     
 @app.route('/minmaxyest')
 def minMaxYest():
