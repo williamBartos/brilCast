@@ -1,9 +1,14 @@
 <!doctype html>
 
 <meta http-equiv="refresh" content="300">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+
 <html>
-<title>brilCast</title>
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+<title>brilCast</title>
 
 <body>
 
@@ -13,7 +18,7 @@
 		<div class=flash>{{ message }}</div>
 	  {% endfor %}
 	  {% block body %}{% endblock %}
-	  
+
 	</div>
 
 <style>
@@ -22,7 +27,7 @@ body {
 	font: 12px Arial;
 	}
 
-path { 
+path {
 	stroke: steelblue;
     stroke-width: 2;
     fill: none;
@@ -38,79 +43,82 @@ path {
 	}
 
 
-
 </style>
 
+<link rel="shortcut icon" href="./static/icon.ico" type="image/x-icon" />
 
-<id = "body" class = "d3Line">
+
+<div id = "body" class = "d3Line" style : "position: relative; display:block; text-align: center;">
 <script src="//d3js.org/d3.v3.min.js"></script>
-	<script> (function() {	
+	<script> (function() {
 		var margin = {top: 20, right: 150, bottom: 80, left: 50},
 		width = 1020 - margin.left - margin.right,
 		height = 500 - margin.top - margin.bottom;
-		
+
 		var formatDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
-		
+
 		var x = d3.time.scale().range([0,width]);
-		
+
 		var y = d3.scale.linear().range([height,150]);
-		
+
 		var xAxis = d3.svg.axis()
 			.scale(x)
 			.orient("bottom")
 			.tickFormat(d3.time.format("%b-%d"))
 
-			
+
 		var yAxis = d3.svg.axis()
 			.scale(y)
 			.orient("left");
-		
+
 		var outTempLine = d3.svg.line()
+			.interpolate("basis")
 			.x(function(d) {return x(d.timeStamps)})
 			.y(function(d) {return y(d.outTemps)});
-		
+
 		var inTempLine = d3.svg.line()
+			.interpolate("basis")
 			.x(function(d) {return x(d.timeStamps)})
-			.y(function(d) {return y(d.inTemps)});	
-			
+			.y(function(d) {return y(d.inTemps)});
+
 		var svgGraph = d3.select("body")
 			.append("svg")
 				.attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
 			.append("g")
-				.attr("transform", 
+				.attr("transform",
 					  "translate (" + margin.left + "," + margin.top + ")")
 
-			
+
 		d3.json("/data",function(error, data) {
-		
+
 			data.forEach(function(d) {
 			d.timeStamps = formatDate(d.timeStamps);
 			d.outTemps = parseFloat(d.outTemps);
 			d.inTemps = parseFloat(d.inTemps);})
-				
+
 			x.domain(d3.extent(data, function (d) {
 				return d.timeStamps;
 				}));
-			
+
 			y.domain([d3.min(data, function(d) {
 				return Math.min(d.outTemps, d.inTemps)-5}),
 				d3.max(data, function(d) {
 				return Math.max(d.outTemps, d.inTemps)+5})]);
-			   
-			var outLinePath = svgGraph.append("path")	
+
+			var outLinePath = svgGraph.append("path")
 				.attr("class", "line")
 				.attr("d", outTempLine(data));
-				
-			var inLinePath = svgGraph.append("path")	
+
+			var inLinePath = svgGraph.append("path")
 				.attr("class", "line")
 				.style("stroke", "red")
 				.attr("d", inTempLine(data));
-			
+
 			 var totalLengthOut = outLinePath.node().getTotalLength();
-			 
-			 var totalLengthIn = inLinePath.node().getTotalLength();	  
-			 
+
+			 var totalLengthIn = inLinePath.node().getTotalLength();
+
 			 outLinePath
 			  .attr("stroke-dasharray", totalLengthOut + " " + totalLengthOut)
 			  .attr("stroke-dashoffset", totalLengthOut)
@@ -118,7 +126,7 @@ path {
 				.duration(2000)
 				.ease("linear")
 				.attr("stroke-dashoffset", 0);
-			   
+
 			 inLinePath
 			  .attr("stroke-dasharray",totalLengthIn + " " + totalLengthIn)
 			  .attr("stroke-dashoffset", totalLengthIn)
@@ -138,7 +146,7 @@ path {
 					.duration(2500)
 					.style("fill", "steelblue")
 					.style("opacity", "1");
-								
+
 			svgGraph.append("text")
 				.attr("transform", "translate(" + (width+3) + "," + y(data[data.length-1].inTemps) + ")")
 				.attr("dy", ".35em")
@@ -149,87 +157,84 @@ path {
 				.transition()
 					.duration(2500)
 					.style("fill", "red")
-					.style("opacity", "1");		
-				
-			svgGraph.append("g")		
+					.style("opacity", "1");
+
+			svgGraph.append("g")
 				.attr("class", "x axis")
 				.attr("transform", "translate(0," + height + ")")
 				.call(xAxis)
-				.selectAll("text")  
+				.selectAll("text")
 				.style("text-anchor", "end")
 				.attr("dx", "-.8em")
 				.attr("dy", ".15em")
 				.attr("transform", "rotate(-65)" );
-		 
-			svgGraph.append("g")			
+
+			svgGraph.append("g")
 				.attr("class", "y axis")
 				.call(yAxis);
-				
+
 		});
 	})();
 	</script>
-
 	<script src="//d3js.org/d3.v3.min.js"></script>
 	<script> (function() {
-	
+
 		var measurements = ["outTempMax", "outTempMin"]
 		var legendRectSize = 18;
 		var legendSpacing = 4;
 		var legendNames = ["Outdoor High Temperature", "Outdoor Low Temperature"]
-		
+
 		var margin = {top: 20, right: 50, bottom: 80, left: 50},
 		width = 800 - margin.left - margin.right,
 		height = 500 - margin.top - margin.bottom;
-		
+
 		var formatDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
-		
+
 		var x = d3.scale.ordinal()
 			.rangeRoundBands([0, width]);
 
 		var y = d3.scale.linear().rangeRound([height,150]);
-		
+
 		var z = d3.scale.category10();
-		
+
 		var xAxis = d3.svg.axis()
 			.scale(x)
 			.orient("bottom")
 			.tickFormat(d3.time.format("%b-%d"))
-			
+
 		var yAxis = d3.svg.axis()
 			.scale(y)
 			.orient("left");
-			
+
 		var svg = d3.select("body")
 			.append("svg")
 				.attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
 			.append("g")
-				.attr("transform", 
+				.attr("transform",
 					  "translate (" + margin.left + "," + margin.top + ")");
-			
+
 		d3.json("/data/week",function(error, data) {
-		
+
 			data.forEach(function(d) {
 			d.timeStamps = formatDate(d.timeStamps);
 			d.outTempMax = parseFloat(d.outTempMax);
 			d.outTempMin = parseFloat(d.outTempMin);})
-			
+
 			var layers = d3.layout.stack()(measurements.map(function (c) {
 				return data.map(function(d) {
 				return {x: d.timeStamps, y: d[c]};
 				});
 			}));
-				
 			x.domain(layers[0].map(function (d) {return d.x;}));
-			
-			y.domain([0, d3.max(layers[layers.length - 1], function(d) { return d.y+10})]).nice();
-			
+
+			y.domain([0, d3.max(layers[layers.length - 1], function(d) { return d.y+20})]).nice();
+
 			var layer = svg.selectAll(".layer")
 				.data(layers)
 				.enter().append("g")
 					.attr("class", "layer")
 					.style("fill", function(d, i) {return z(i);});
-			
 			layer.selectAll("rect")
 				.data(function (d) {return d;})
 				.enter().append("rect")
@@ -242,16 +247,16 @@ path {
 						.attr("y", function(d) { return y(d.y); })
 						.attr("height", function(d) { return y(d.y0) - y(d.y + d.y0); })
 						.attr("width", x.rangeBand()-5);
-	
+
 			svg.append("g")
 				.attr("class", "axis axis--x")
 				.attr("transform", "translate(0," + height + ")")
 				.call(xAxis);
-				
+
 			svg.append("g")
 				.attr("class", "axis axis--y")
 				.call(yAxis);
-				
+
 			var legend = layer.selectAll(".legend")
 				.data(function (d) {return measurements})
 				.enter().append("g")
@@ -281,29 +286,24 @@ path {
 						.style("opacity", "1")
 						.style("fill", function(d, i) {return z(i);})
 						.text(function(d,i) { return legendNames[i]; });
-								
+
 
 		});
 	})();
 	</script>
+
+</div>
+
+<div id = "container" >
+    <div" style = "padding-top: 10em; position: relative; display: block; text-align: center;">
+    	<p1>brilCast is a microlocal weather service located in my bedroom. Climate data is gathered from sensors wired to a Raspberry Pi,
+    	sent to the web via Flask, and vizualized using D3.js.<br><br>
+    	Created by William Bartos<br><br></p1>
+
+    	<a href="https://github.com/williamBartos/brilCast" class=link >
+    	<i class="fa fa-github fa-3x"></i></a>
+    </div>
 </div>
 
 </body>
-
-
-
-
-		
-		
-
-
-
-
-
-
-
-
-
-
-
 </html>
