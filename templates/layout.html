@@ -1,7 +1,7 @@
 <!doctype html>
 
 <meta http-equiv="refresh" content="300">
-<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, height=device-height">
 
 <html>
 <head>
@@ -13,7 +13,7 @@
 <body>
 
 	<div class=page>
-	  <h1>🐡 brilCast - microlocal weather service </h1>
+	  <h1>🐡brilCast - microlocal weather service </h1>
 	  {% for message in get_flashed_messages() %}
 		<div class=flash>{{ message }}</div>
 	  {% endfor %}
@@ -228,7 +228,7 @@ path {
 			}));
 			x.domain(layers[0].map(function (d) {return d.x;}));
 
-			y.domain([0, d3.max(layers[layers.length - 1], function(d) { return d.y+20})]).nice();
+			y.domain([0, d3.max(layers[layers.length - 1], function(d) { return d.y+50})]).nice();
 
 			var layer = svg.selectAll(".layer")
 				.data(layers)
@@ -299,9 +299,11 @@ path {
     	<p1>brilCast is a microlocal weather service located in my bedroom. Climate data is gathered from sensors wired to a Raspberry Pi,
     	sent to the web via Flask, and vizualized using D3.js.<br><br>
     	Created by William Bartos<br><br></p1>
+		<p1><a href="http://willbartos.io">willbartos.io<br><br></a></p1>
 
     	<a href="https://github.com/williamBartos/brilCast" class=link >
-    	<i class="fa fa-github fa-3x"></i></a>
+    	<i class="fa fa-github fa-4x"></i></a>
+
     </div>
 </div>
 

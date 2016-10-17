@@ -12,7 +12,7 @@ app.config.update(dict(
     DATABASE = os.path.join(app.root_path, 'brilCast.db'),
     SECRET_KEY = 'development key',
     USERNAME = 'admin',
-    PASSWORD = 'default'  
+    PASSWORD = 'default'
    ))
 
 app.config.from_envvar('BRILCAST_SETTINGS', silent=True)
@@ -49,10 +49,10 @@ def graphData():
     cur = db.execute('select temp, inTemp, inHum, time from entries order by id desc')
     entries = cur.fetchall()
     entrylist = []
-    for row in entries:
+    for row in entries[::2]:
         entrylist.insert(0, {'timeStamps' : row[3], 'outTemps' : row[0], 'inTemps' : row[1]})
     return jsonify(entrylist)
-    
+
 @app.route('/data/minmax/yesterday')
 def postMinMaxYesterday():
     today = datetime.now().date()
@@ -93,44 +93,43 @@ def postMinMaxToday():
 
 @app.route('/data/week')
 def postMinMaxWeek():
-    
+
     entrylist =[]
     combinedlist = []
     dayStart = datetime.today().replace(hour = 00, minute = 00, second = 00, microsecond = 00)
     dayEnd = datetime.today().replace(hour = 11, minute = 59, second = 00, microsecond = 00)
     i = 0
-    
-    while i <= 7:
-        try: 
+
+    while i < 7:
+        try:
             db = get_db()
-            params = (dayStart, dayEnd, dayStart,dayEnd)
+            params = (dayStart, dayEnd, dayStart, dayEnd)
             sql = ('''
                 select MAX(temp),time from entries where time between ? and ?
                 UNION
                 select MIN(temp),time from entries where time between ? and ?'''
             )
-            
+
             cur = db.execute(sql, params)
             entries = cur.fetchall()
-            print(dayStart)
-            for row in entries:         
+            for row in entries:
                 if row[1] == None:
                     pass
                 else:
                  entrylist.insert(0,[row[1], row[0]])
-                 
+
             dayStart = dayStart - timedelta(days = 1)
             dayEnd = dayEnd - timedelta(days = 1)
             i+=1
-        except:     
+        except:
             break
-        
-    for entry in range(0, len(entrylist),2): 
+
+    for entry in range(0, len(entrylist),2):
         combinedlist.append({'timeStamps' : entrylist[entry][0], 'outTempMax' : entrylist[entry][1], 'outTempMin' : entrylist[entry+1][1]} )
-        
-      
+
+
     return jsonify(combinedlist)
-    
+
 @app.route('/graph')
 def graph():
     return render_template("graph.html")
@@ -138,12 +137,12 @@ def graph():
 @app.route('/bargraph')
 def barGraph():
     return render_template("bargraph.html")
-    
-    
+
+
 @app.route('/minmaxyest')
 def minMaxYest():
     return render_template("minmaxyest.html")
-    
+
 @app.teardown_appcontext
 def close_db(error):
     """Closes the database again at the end of the request."""
@@ -164,8 +163,8 @@ def add_entry():
     db.commit()
     return redirect(url_for('show_entries'))
 
-if __name__ == "__main__":   
-    app.run(host = '0.0.0.0', debug=True, use_reloader=True)
+if __name__ == "__main__":
+    print("Running...")
     connect_db()
 
 
